@@ -1,0 +1,31 @@
+[service]:
+  build: ./[service]
+  command: yarn start:dev
+  depends_on:
+    - rabbitmq
+    # -  other service on which it depends
+  links:
+    - rabbitmq
+  env_file:
+    - .env
+    - ./[service]/[service].env
+  ports:
+    - "[service-port]:[service-port]"
+  volumes:
+    - ./[service]:/usr/app
+    - /usr/app/node_modules
+  networks:
+    - backend
+# POSTGRES DB
+[service]-db:
+  container_name: [service]-postgres
+  volumes:
+    - /data/[service]-postgres:/data/postgres
+  env_file:
+    - ./[service]/[service].env
+  image: postgres:alpine
+  ports:
+    - "[db-port]:5432"
+  networks:
+    - backend
+    - [service]-postgres

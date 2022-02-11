@@ -1,0 +1,4 @@
+export enum LINKTYPES {
+  CONFIRM = 'CONFIRM',
+  PASSWORD = 'PASSWORD',
+}
