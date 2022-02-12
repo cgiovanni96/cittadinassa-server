@@ -7,10 +7,12 @@ import U from 'src/messages/user.message';
 import { UserDto } from 'src/dto/user.dto';
 import { UUID } from 'src/types/base.types';
 import { UserRelationsKeys } from 'src/types/relationship.type';
+import { LinkService } from 'src/services/link.service';
+import { LINKTYPES } from 'src/types/link.types';
 
 @Controller()
 export class UserController {
-  constructor(private readonly user: UserService) {}
+  constructor(private readonly user: UserService, private readonly link: LinkService) {}
 
   @MessagePattern('hello_user')
   getHello(): string {
@@ -23,12 +25,14 @@ export class UserController {
       const user = await this.user.create(data);
       if (!user) return response(U.CREATE, HttpStatus.BAD_REQUEST, undefined);
 
-      //   const userLink = await this.linkService.create({
-      //     user_id: created.id,
-      //     type: TYPES.CONFIRM,
-      //   });
+      const confirmUserLink = await this.link.create({
+        userId: user.id,
+        type: LINKTYPES.CONFIRM,
+      });
 
-      return response(U.CREATE, HttpStatus.OK, { user });
+      const httpLink = await this.link.generateHttpLink({ link: confirmUserLink.link });
+
+      return response(U.CREATE, HttpStatus.OK, { user, link: httpLink });
     } catch {
       return response(U.CREATE, HttpStatus.INTERNAL_SERVER_ERROR, undefined);
     }
