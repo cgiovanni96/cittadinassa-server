@@ -1,0 +1,5 @@
+export enum CLIENTS {
+  USER = 'USER_CLIENT',
+  TOKEN = 'TOKEN_CLIENT',
+  MAILER = 'MAILER_CLIENT',
+}
