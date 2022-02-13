@@ -94,6 +94,7 @@ export class UserController {
 
       // CHECK PASSWORD
       const verifiedPassword = await this.user.verifyPassword(user, userCredentials.password);
+      console.log('verified', verifiedPassword);
       if (!verifiedPassword) throw new Error();
 
       return response(U.SEARCH_BY_CREDENTIALS, HttpStatus.OK, { user });

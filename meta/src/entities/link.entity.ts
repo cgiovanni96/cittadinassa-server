@@ -1,7 +1,8 @@
-import { UUID } from 'src/types/base.types';
-import { LINKTYPES } from 'src/types/link.types';
 import { Column, Entity } from 'typeorm';
+
 import { Base } from './base';
+import { UUID } from 'src/types/base.types';
+import { LINKTYPES } from '../types/link.types';
 
 @Entity()
 export class Link extends Base {

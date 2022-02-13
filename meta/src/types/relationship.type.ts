@@ -3,9 +3,9 @@
 /* -------------------------------------------------------------------------- */
 
 export const UserRelations = {
-  auth: ['auth'],
+  auth: ['authInfo'],
   profile: ['profile'],
-  all: ['profile', 'auth'],
+  all: ['profile', 'authInfo'],
   none: [],
 };
 

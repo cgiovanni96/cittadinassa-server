@@ -1,5 +1,6 @@
-import { GLOBAL_ROLES } from 'src/types/role.type';
 import { Column, Entity } from 'typeorm';
+
+import { GLOBAL_ROLES } from '../../types/role.type';
 import { Base } from '../base';
 
 @Entity()

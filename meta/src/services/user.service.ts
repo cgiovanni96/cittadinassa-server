@@ -38,8 +38,8 @@ export class UserService {
 
   async find(data: { conditions: Conditions<User>; relations: UserRelationsKeys }): Promise<User> {
     return this.user.findOneOrFail({
-      where: data.conditions,
-      relations: UserRelations[data.relations],
+      where: { ...data.conditions },
+      relations: [...UserRelations[data.relations]],
     });
   }
 
