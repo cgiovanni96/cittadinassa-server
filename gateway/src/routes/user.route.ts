@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { MailerClient } from 'src/clients/mailer.client';
-import { UserClient } from 'src/clients/user.client';
+import { MailerClient } from 'src/app/clients/mailer.client';
+import { UserClient } from 'src/app/clients/user.client';
 import { TEMPLATES } from 'src/model/mailer/mailer.types';
 
 import { Dto } from 'src/model/user';
 
 @Controller('users')
-export class UserController {
+export class UserRoute {
   constructor(private readonly user: UserClient, private readonly mailer: MailerClient) {}
 
   /* -------------------------------------------------------------------------- */

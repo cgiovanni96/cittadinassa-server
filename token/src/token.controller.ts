@@ -3,8 +3,8 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TokenService } from './token.service';
 
 import T from 'src/messages/token.message';
-import { PR } from 'lib/response/type';
-import { response } from 'lib/response';
+import { PR } from 'src/lib/response/type';
+import { response } from 'src/lib/response';
 
 @Controller()
 export class TokenController {
