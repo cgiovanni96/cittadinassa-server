@@ -20,15 +20,20 @@ export class MailerController {
   async mailSend(data: EmailDto): PR {
     if (this.config.get('isEmailDisabled')) return response(SEND, 0, { sent: false });
 
+    console.log('data', data);
+
     try {
-      await this.mailer.sendMail({
+      const res = await this.mailer.sendMail({
         ...data,
         context: data.templated && data.templated.context,
         template: data.templated && `./${data.templated.template}`,
       });
 
+      console.log('res', res);
+
       return response(SEND, HttpStatus.OK, { sent: true });
-    } catch {
+    } catch (e) {
+      console.error('err', e);
       return response(SEND, HttpStatus.INTERNAL_SERVER_ERROR, { sent: false });
     }
   }

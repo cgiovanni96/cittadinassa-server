@@ -1,3 +1,4 @@
+import { GLOBAL_ROLES } from 'src/types/role.type';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
@@ -7,6 +8,7 @@ import { Conditions, UUID } from 'src/types/base.types';
 import { Auth } from 'src/entities/user/auth.entity';
 import { UserRelations, UserRelationsKeys } from 'src/types/relationship.type';
 import { UserDto } from 'src/dto/user.dto';
+import { Profile } from 'src/entities/user/profile.entity';
 
 @Injectable()
 export class UserService {
@@ -14,6 +16,7 @@ export class UserService {
     private readonly connection: Connection,
     @InjectRepository(User) private readonly user: Repository<User>,
     @InjectRepository(Auth) private readonly auth: Repository<Auth>,
+    @InjectRepository(Profile) private readonly profile: Repository<Profile>,
   ) {}
 
   /* -------------------------------------------------------------------------- */
@@ -53,10 +56,13 @@ export class UserService {
       password: hashed,
     });
 
+    const profile = await this.profile.save({ globalRole: GLOBAL_ROLES.MEMBER });
+
     return this.user.save({
       name: data.name,
       email: data.email,
       authInfo: authInfo,
+      profile: profile,
     });
   }
 
@@ -65,7 +71,8 @@ export class UserService {
   }
 
   async delete(data: { id: UUID }): Promise<void> {
-    await this.user.delete({ id: data.id });
+    const del = await this.user.delete({ id: data.id });
+    if (del.affected === 0) throw new Error();
   }
 
   /* -------------------------------------------------------------------------- */

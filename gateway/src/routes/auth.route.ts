@@ -1,6 +1,8 @@
 import { Body, Controller, HttpStatus, Post, Req, Get } from '@nestjs/common';
+import { Request } from 'express';
 import { TokenClient } from 'src/app/clients/token.client';
 import { UserClient } from 'src/app/clients/user.client';
+import { Authenticated } from 'src/app/guards/authentication.guard';
 
 import { Dto } from 'src/model/user';
 
@@ -31,8 +33,9 @@ export class AuthRoute {
   }
 
   @Post('/logout')
-  async logoutUser(@Body() data: Dto.Get) {
-    const getUserResponse = await this.user.get(data);
+  @Authenticated()
+  async logoutUser(@Req() req: Request) {
+    const getUserResponse = await this.user.get({ id: req.user.id });
 
     if (getUserResponse.status >= 400)
       return {
@@ -53,7 +56,8 @@ export class AuthRoute {
   }
 
   @Get('/current')
-  async current(@Req() req: any) {
+  @Authenticated()
+  async current(@Req() req: Request) {
     if (req.user)
       return {
         status: HttpStatus.OK,

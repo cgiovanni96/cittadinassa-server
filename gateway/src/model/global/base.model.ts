@@ -1,4 +1,4 @@
-import { UUID } from './type/UUID';
+import { UUID } from './type/uuid.type.ts';
 
 export default class BaseModel {
   id: UUID;

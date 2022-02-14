@@ -49,9 +49,9 @@ export class UserController {
   }
 
   @MessagePattern(U.UPDATE)
-  async updateUser(@Payload() data: { id: UUID; user: Partial<UserDto> }): PR {
+  async updateUser(@Payload() data: { id: UUID; payload: Partial<UserDto> }): PR {
     try {
-      await this.user.update({ conditions: { id: data.id }, data: data.user });
+      await this.user.update({ conditions: { id: data.id }, data: data.payload });
 
       return response(U.UPDATE, HttpStatus.OK, { updated: true });
     } catch {

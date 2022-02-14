@@ -17,7 +17,7 @@ export class TokenClient {
     return firstValueFrom(this.tokenClient.send(COMMANDS.DESTROY, data));
   }
 
-  async descode(data: Dto.Decode): Promise<Response.Decoded> {
+  async decode(data: Dto.Decode): Promise<Response.Decoded> {
     return firstValueFrom(this.tokenClient.send(COMMANDS.DECODE, data));
   }
 }

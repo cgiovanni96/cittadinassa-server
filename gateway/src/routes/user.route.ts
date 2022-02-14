@@ -1,11 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseInterceptors } from '@nestjs/common';
+import { Models } from 'src/app/auth/models.auth';
+import { USER_ACTIONS } from 'src/app/auth/user/user.ability';
 import { MailerClient } from 'src/app/clients/mailer.client';
 import { UserClient } from 'src/app/clients/user.client';
+import { Authenticated } from 'src/app/guards/authentication.guard';
+import { Protected } from 'src/app/guards/authorization.guard';
+import { ResponseInterceptor } from 'src/app/interceptors/response.interceptor';
 import { TEMPLATES } from 'src/model/mailer/mailer.types';
 
 import { Dto } from 'src/model/user';
 
-@Controller('users')
+@UseInterceptors(ResponseInterceptor)
+@Controller('user')
 export class UserRoute {
   constructor(private readonly user: UserClient, private readonly mailer: MailerClient) {}
 
@@ -31,8 +37,10 @@ export class UserRoute {
       await this.mailer.send({
         to: response.data.user.email,
         subject: 'Conferma Email',
-        template: TEMPLATES.CONFIRM,
-        context: { link: response.data.link },
+        templated: {
+          template: TEMPLATES.CONFIRM,
+          context: { link: response.data.link },
+        },
       });
     }
 
@@ -40,11 +48,15 @@ export class UserRoute {
   }
 
   @Delete('/')
+  @Authenticated()
+  @Protected({ model: Models.USER, action: USER_ACTIONS.DELETE })
   async deleteUser(@Body() data: Dto.Delete) {
     return this.user.delete(data);
   }
 
   @Put('/')
+  @Authenticated()
+  @Protected({ model: Models.USER, action: USER_ACTIONS.UPDATE })
   async updateUser(@Body() data: Dto.Update) {
     return this.user.update(data);
   }

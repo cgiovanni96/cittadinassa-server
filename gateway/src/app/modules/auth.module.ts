@@ -9,6 +9,6 @@ import { UserModule } from './user.module';
   imports: [UserModule],
   controllers: [AuthRoute],
   providers: [ConfigService, TokenProvider, TokenClient],
-  exports: [],
+  exports: [TokenProvider, TokenClient],
 })
 export class AuthModule {}

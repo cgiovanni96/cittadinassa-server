@@ -1,11 +1,10 @@
 import BaseModel from '../global/base.model';
-import { Responses } from '../global/response';
 
 /* -------------------------------------------------------------------------- */
 /*                                    MODEL                                   */
 /* -------------------------------------------------------------------------- */
 
-export class UserModel extends BaseModel {
+export class User extends BaseModel {
   name: string;
   email: string;
   profile: Profile;
