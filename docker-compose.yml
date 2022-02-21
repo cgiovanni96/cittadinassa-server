@@ -101,6 +101,40 @@ services:
       - token-postgres
       - backend
 
+  # NET SERVICE CONFIGURATION
+  net:
+    build: ./net
+    container_name: net
+    command: yarn start:dev
+    depends_on:
+      - rabbitmq
+      - net-db
+    links:
+      - rabbitmq
+    env_file:
+      - .env
+      - ./net/net.env
+    ports:
+      - '7102:7102'
+    volumes:
+      - ./net:/usr/app
+      - /usr/app/node_modules
+    networks:
+      - backend
+  # POSTGRES DB
+  net-db:
+    container_name: net-postgres
+    volumes:
+      - /data/net-postgres:/data/postgres
+    env_file:
+      - ./net/net.env
+    image: postgres:alpine
+    ports:
+      - '7202:5432'
+    networks:
+      - net-postgres
+      - backend
+
   # MAILER SERVICE CONFIGURATION
   mailer:
     build: ./mailer
@@ -127,4 +161,6 @@ networks:
   meta-postgres:
     driver: bridge
   token-postgres:
+    driver: bridge
+  net-postgres:
     driver: bridge
