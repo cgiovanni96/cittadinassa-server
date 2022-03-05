@@ -7,7 +7,6 @@ import { User } from 'src/entities/user/user.entity';
 import { Conditions, UUID } from 'src/types/base.types';
 import { Auth } from 'src/entities/user/auth.entity';
 import { UserRelations, UserRelationsKeys } from 'src/types/relationship.type';
-import { UserDto } from 'src/dto/user.dto';
 import { Profile } from 'src/entities/user/profile.entity';
 
 @Injectable()
@@ -84,8 +83,14 @@ export class UserService {
     return compared;
   }
 
-  async confirm(data: { id: UUID }): Promise<void> {
-    await this.user.update({ id: data.id }, { authInfo: { confirmed: true } });
+  async confirm(data: { id: UUID }): Promise<User> {
+    const user = await this.user.findOneOrFail({ id: data.id });
+    const info = await this.auth.save({ ...user.authInfo, confirmed: true });
+
+    return this.user.save({
+      ...user,
+      authInfo: info,
+    });
   }
 
   async toggleChangingPassword(data: { id: UUID; passwordState: boolean }): Promise<void> {

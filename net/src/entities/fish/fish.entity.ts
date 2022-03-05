@@ -2,11 +2,11 @@ import { UUID } from 'src/types/base.types';
 import { FISH_TYPE } from '../../types/fish.type';
 import { Column, Entity, OneToMany, TableInheritance } from 'typeorm';
 import { Base } from '../base';
-import { Role } from './role.entity';
 import { ExtraInfo } from './extra.fish';
+import { FishRole } from './fishRole.entity';
 
 @Entity()
-@TableInheritance({ column: { type: 'varchar', name: 'type' } })
+@TableInheritance({ column: { type: 'varchar', name: 'kind' } })
 export class Fish extends Base {
   @Column({ nullable: false, unique: true })
   name: string;
@@ -21,10 +21,10 @@ export class Fish extends Base {
   type: FISH_TYPE;
 
   @Column(() => ExtraInfo)
-  extra: ExtraInfo;
+  extra?: ExtraInfo;
 
-  @OneToMany(() => Role, (role) => role.fish)
-  roles: Role[];
+  @OneToMany(() => FishRole, (fishRole) => fishRole.fish, { eager: true, nullable: true })
+  roles?: FishRole[];
 
   @Column({ type: 'simple-array', default: [] })
   eventdIds: UUID[];

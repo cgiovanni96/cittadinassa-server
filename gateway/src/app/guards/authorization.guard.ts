@@ -9,6 +9,8 @@ import { Request } from 'express';
 import { USER_ACTIONS } from '../auth/user/user.ability';
 import { Models } from '../auth/models.auth';
 import { GLOBAL_ROLES } from 'src/model/global/type';
+import { FishClient } from '../clients/fish.client';
+import { ROLES } from 'src/model/fish/fish.type';
 
 type ProtectedInfo = {
   model: Models;
@@ -19,7 +21,11 @@ export const Protected = (info: ProtectedInfo) => SetMetadata('protected', info)
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector, private readonly userAbility: UserAbility) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly userAbility: UserAbility,
+    private readonly fish: FishClient,
+  ) {}
 
   protectUserAction(data: { user: User; action: string; body: { id: string } }): boolean {
     if (data.user.profile.globalRole === GLOBAL_ROLES.ADMIN) return true;
@@ -35,6 +41,27 @@ export class AuthorizationGuard implements CanActivate {
     return ability.can(data.action, 'all');
   }
 
+  async protectFishAction(data: {
+    user: User;
+    action: string;
+    body: { id: string };
+  }): Promise<boolean> {
+    if (
+      data.user.profile.globalRole === GLOBAL_ROLES.ADMIN ||
+      data.user.profile.globalRole === GLOBAL_ROLES.OPERATION
+    )
+      return true;
+
+    const ability = this.userAbility.createForFish(data.user);
+    if (data.action === USER_ACTIONS.READ) return ability.can(data.action, 'all');
+
+    const { data: fishData } = await this.fish.get({ id: data.body.id });
+    if (!fishData) return false;
+    const adminRole = fishData.fish.roles.find((role) => role.role.type === ROLES.ADMIN);
+
+    return ability.can(data.action, adminRole);
+  }
+
   public async canActivate(context: ExecutionContext): Promise<boolean> {
     const req: Request = context.switchToHttp().getRequest();
     const info: ProtectedInfo = this.reflector.get('protected', context.getHandler());
@@ -42,9 +69,10 @@ export class AuthorizationGuard implements CanActivate {
     if (!info || !info.action) return true;
     if (!req.user) return false;
 
-    console.log('here');
-
     if (info.model === Models.USER)
       return this.protectUserAction({ user: req.user, action: info.action, body: req.body });
+
+    if (info.model === Models.FISH)
+      return this.protectFishAction({ user: req.user, action: info.action, body: req.body });
   }
 }

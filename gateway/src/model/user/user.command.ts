@@ -6,3 +6,5 @@ export const GET = 'user_get';
 export const FIND = 'user_find';
 export const SEARCH_BY_CREDENTIALS = 'user_search_by_credentials';
 export const FORGOT_PASSWORD = 'user_forgot_password';
+export const CONFIRM_LINK = 'user_confirm';
+export const CHANGE_PASSWORD = 'user_change_password';

@@ -1,4 +1,4 @@
-import { Event } from 'src/entities/fish/children/event.fish';
+import { Event } from 'src/entities/fish/children/event.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';

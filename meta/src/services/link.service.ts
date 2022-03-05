@@ -51,8 +51,9 @@ export class LinkService {
     return this.link.save({ link: linkUUID, ...data });
   }
 
-  async update(data: { conditions: Conditions<Link>; data: Partial<Link> }): Promise<void> {
-    await this.link.update({ ...data.conditions }, { ...data.data });
+  async update(data: { conditions: Conditions<Link>; data: Partial<Link> }): Promise<Link> {
+    const linkToUpdate = await this.link.findOneOrFail({ where: data.conditions });
+    return this.link.save({ ...linkToUpdate, ...data.data });
   }
 
   async delete(data: { id: UUID }): Promise<void> {

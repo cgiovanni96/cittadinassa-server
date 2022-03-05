@@ -41,11 +41,9 @@ export class UserClient {
     return firstValueFrom(this.client.send(COMMANDS.SEARCH_BY_CREDENTIALS, data));
   }
 
-  //   async userConfirm(data: Dto.Confirm): Promise<Responses.Confirm> {
-  //     return firstValueFrom(
-  //       this.userClient.send<Responses.Confirm, Dto.Confirm>(COMMANDS.USER_CONFIRM_LINK, data),
-  //     );
-  //   }
+  async confirm(data: Dto.Confirm): Promise<Response.Confirmed> {
+    return firstValueFrom(this.client.send(COMMANDS.CONFIRM_LINK, data));
+  }
 
   //   async userForgotPassword(data: Dto.ForgotPassword): Promise<Responses.ForgotPassword> {
   //     return firstValueFrom(

@@ -1,4 +1,4 @@
-import { Project } from 'src/entities/fish/children/project.fish';
+import { Project } from 'src/entities/fish/children/project.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';

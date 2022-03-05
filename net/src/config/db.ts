@@ -13,11 +13,9 @@ export class DbConfig implements TypeOrmOptionsFactory {
       database: process.env.POSTGRES_DB,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       migrations: ['dist/migrations/*.js'],
+      autoLoadEntities: true,
       migrationsRun: true,
       migrationsTableName: 'migrations_history',
-      dropSchema: true,
-      synchronize: true,
-      autoLoadEntities: true,
     };
   }
 }

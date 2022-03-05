@@ -1,11 +1,13 @@
-import { Body, Controller, HttpStatus, Post, Req, Get } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Req, Get, UseInterceptors } from '@nestjs/common';
 import { Request } from 'express';
 import { TokenClient } from 'src/app/clients/token.client';
 import { UserClient } from 'src/app/clients/user.client';
 import { Authenticated } from 'src/app/guards/authentication.guard';
+import { ResponseInterceptor } from 'src/app/interceptors/response.interceptor';
 
 import { Dto } from 'src/model/user';
 
+@UseInterceptors(ResponseInterceptor)
 @Controller('auth')
 export class AuthRoute {
   constructor(private readonly user: UserClient, private readonly token: TokenClient) {}
@@ -70,5 +72,10 @@ export class AuthRoute {
       message: 'user_not_current',
       data: undefined,
     };
+  }
+
+  @Post('/confirm')
+  async confirm(@Body() data: { link: string }) {
+    return this.user.confirm(data);
   }
 }

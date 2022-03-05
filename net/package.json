@@ -19,6 +19,7 @@
     "@nestjs/microservices": "^8.1.2",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/typeorm": "^8.0.2",
+    "@types/multer": "^1.4.7",
     "amqp-connection-manager": "^3.7.0",
     "amqplib": "^0.8.0",
     "bcrypt": "^5.0.1",

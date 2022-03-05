@@ -1,5 +1,5 @@
 import { Controller, HttpStatus } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { EventService } from 'src/services/event.service';
 import { FishService } from 'src/services/fish.service';
 import { GroupService } from 'src/services/group.service';
@@ -10,6 +10,8 @@ import { Fish } from 'src/entities/fish/fish.entity';
 import { response } from 'src/response';
 import { FISH_TYPE } from 'src/types/fish.type';
 import { UUID } from 'src/types/base.types';
+import { RoleService } from 'src/services/role.service';
+import { FishDto } from 'src/dto/fish.dto';
 
 @Controller()
 export class FishController {
@@ -18,23 +20,30 @@ export class FishController {
     private readonly event: EventService,
     private readonly group: GroupService,
     private readonly project: ProjectService,
+    private readonly role: RoleService,
   ) {}
 
+  /* -------------------------------------------------------------------------- */
+  /*                                    CRUD                                    */
+  /* -------------------------------------------------------------------------- */
+
   @MessagePattern(MESSAGE.GET_ALL)
-  async getAll(data?: { type?: FISH_TYPE }): PR {
-    let payload: Fish[] = [];
+  async getAll(): PR {
+    const fishes = await this.fish.getAll();
+    return response(MESSAGE.GET_ALL, HttpStatus.OK, { fishes });
+  }
 
-    if (!data || !data.type) payload = await this.fish.getAll();
-    else payload = await this[data.type].getAll();
+  @MessagePattern(MESSAGE.GET_ALL_BY_TYPE)
+  async getAllByType(@Payload() data: { type: FISH_TYPE }): PR {
+    const payload = await this[data.type].getAll();
+    const type = `${data.type}s`;
 
-    const type = data && data.type ? `${data.type}s` : 'fishes';
-
-    if (payload !== []) return response(MESSAGE.GET_ALL, HttpStatus.OK, { [type]: payload });
-    return response(MESSAGE.GET_ALL, HttpStatus.BAD_REQUEST, undefined);
+    if (payload !== [])
+      return response(MESSAGE.GET_ALL_BY_TYPE, HttpStatus.OK, { [type]: payload });
   }
 
   @MessagePattern(MESSAGE.GET)
-  async get(data: { id: string; type?: FISH_TYPE }): PR {
+  async get(@Payload() data: { id: string; type?: FISH_TYPE }): PR {
     try {
       const fish: { data: Fish } = undefined;
 
@@ -49,14 +58,17 @@ export class FishController {
   }
 
   @MessagePattern(MESSAGE.CREATE)
-  async create(data: { fish: Fish }): PR {
-    const fish = await this.fish.create(data);
-    if (fish) return response(MESSAGE.CREATE, HttpStatus.OK, { fish });
-    return response(MESSAGE.CREATE, HttpStatus.BAD_REQUEST, undefined);
+  async create(@Payload() data: FishDto): PR {
+    const fish = await this.fish.create({ fish: { ...data } });
+    if (!fish) return response(MESSAGE.CREATE, HttpStatus.BAD_REQUEST, undefined);
+
+    const fishWithRoles = await this.fish.addRoles({ fish });
+
+    return response(MESSAGE.CREATE, HttpStatus.OK, { fish: fishWithRoles });
   }
 
   @MessagePattern(MESSAGE.UPDATE)
-  async update(data: { id: UUID; payload: Partial<Fish> }): PR {
+  async update(@Payload() data: { id: UUID; payload: Partial<FishDto> }): PR {
     try {
       await this.fish.update(data);
       return response(MESSAGE.UPDATE, HttpStatus.OK, { updated: true });
@@ -66,7 +78,7 @@ export class FishController {
   }
 
   @MessagePattern(MESSAGE.DELETE)
-  async delete(data: { id: UUID }): PR {
+  async delete(@Payload() data: { id: UUID }): PR {
     try {
       await this.fish.delete(data);
       return response(MESSAGE.UPDATE, HttpStatus.OK, { deleted: true });
@@ -74,4 +86,8 @@ export class FishController {
       return response(MESSAGE.UPDATE, HttpStatus.BAD_REQUEST, { deleted: false });
     }
   }
+
+  /* -------------------------------------------------------------------------- */
+  /*                               FUNCTIONALITIES                              */
+  /* -------------------------------------------------------------------------- */
 }

@@ -17,9 +17,8 @@ export class LinkController {
   async confirmUser(data: { link: string }): PR {
     try {
       const userLink = await this.link.find({ conditions: { link: data.link } });
-
-      await this.link.update({ conditions: { id: userLink.id }, data: { link: userLink.link } });
-      await this.user.confirm({ id: userLink.userId });
+      await this.link.update({ conditions: { id: userLink.id }, data: { isUsed: true } });
+      const user = await this.user.confirm({ id: userLink.userId });
 
       return response(L.CONFIRM_LINK, HttpStatus.OK, { confirmed: true });
     } catch {

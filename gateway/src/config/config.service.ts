@@ -8,6 +8,16 @@ export type EnvConfig = {
     host: string;
     queues: RabbitQueue;
   };
+  aws?: {
+    region: string;
+    key: {
+      access: string;
+      secret: string;
+    };
+    buckets: {
+      fishCover: string;
+    };
+  };
   globalCodename?: string;
 };
 
@@ -22,9 +32,19 @@ export class ConfigService {
       queues: {
         user: process.env.RABBITMQ_USER_QUEUE_NAME,
         token: process.env.RABBITMQ_TOKEN_QUEUE_NAME,
-        permission: process.env.RABBITMQ_PERMISSION_QUEUE_NAME,
         mailer: process.env.RABBITMQ_MAILER_QUEUE_NAME,
-        group: process.env.RABBITMQ_GROUP_QUEUE_NAME,
+        net: process.env.RABBITMQ_NET_QUEUE_NAME,
+      },
+    };
+
+    this.envConfig.aws = {
+      region: process.env.AWS_REGION,
+      key: {
+        access: process.env.AWS_ACCESS_KEY_ID,
+        secret: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+      buckets: {
+        fishCover: process.env.AWS_BUCKET_FISH_COVER,
       },
     };
 

@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, UseInterceptors } from
 import { Models } from 'src/app/auth/models.auth';
 import { USER_ACTIONS } from 'src/app/auth/user/user.ability';
 import { MailerClient } from 'src/app/clients/mailer.client';
+import { TokenClient } from 'src/app/clients/token.client';
 import { UserClient } from 'src/app/clients/user.client';
 import { Authenticated } from 'src/app/guards/authentication.guard';
 import { Protected } from 'src/app/guards/authorization.guard';
@@ -13,7 +14,11 @@ import { Dto } from 'src/model/user';
 @UseInterceptors(ResponseInterceptor)
 @Controller('user')
 export class UserRoute {
-  constructor(private readonly user: UserClient, private readonly mailer: MailerClient) {}
+  constructor(
+    private readonly user: UserClient,
+    private readonly mailer: MailerClient,
+    private readonly token: TokenClient,
+  ) {}
 
   /* -------------------------------------------------------------------------- */
   /*                               CRUD OPERATION                               */
@@ -33,18 +38,25 @@ export class UserRoute {
   async createUser(@Body() data: Dto.Create) {
     const response = await this.user.create(data);
 
-    if (response.data && response.data.link) {
-      await this.mailer.send({
-        to: response.data.user.email,
-        subject: 'Conferma Email',
-        templated: {
-          template: TEMPLATES.CONFIRM,
-          context: { link: response.data.link },
-        },
-      });
-    }
+    if (!response.data || !response.data.link || !response.data.user) return response;
 
-    return response;
+    await this.mailer.send({
+      to: response.data.user.email,
+      subject: 'Conferma Email',
+      templated: {
+        template: TEMPLATES.CONFIRM,
+        context: { link: response.data.link },
+      },
+    });
+
+    const tokenResponse = await this.token.create({
+      userId: response.data.user.id,
+    });
+
+    return {
+      ...response,
+      data: { user: response.data.user, token: tokenResponse.data.token },
+    };
   }
 
   @Delete('/')
@@ -64,11 +76,6 @@ export class UserRoute {
   /* -------------------------------------------------------------------------- */
   /*                               FUNCTIONALITIES                              */
   /* -------------------------------------------------------------------------- */
-
-  // @Post('/confirm')
-  // async confirmUser(@Body() data: typeof UserDto.Confirm) {
-  //   return this.user.confirm(data);
-  // }
 
   // @Post('/forgot-password')
   // async forgotPassword(@Body() data: typeof UserDto.ForgotPassword) {

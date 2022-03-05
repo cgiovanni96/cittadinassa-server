@@ -11,7 +11,7 @@ export class User extends Base {
   @Column({ unique: true })
   email: string;
 
-  @OneToOne(() => Auth, { nullable: false, cascade: ['remove'] })
+  @OneToOne(() => Auth, { nullable: false, eager: true, cascade: ['remove'] })
   @JoinColumn()
   authInfo: Auth;
 

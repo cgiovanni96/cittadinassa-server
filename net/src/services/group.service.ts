@@ -1,4 +1,4 @@
-import { Group } from 'src/entities/fish/children/group.fish';
+import { Group } from 'src/entities/fish/children/group.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
